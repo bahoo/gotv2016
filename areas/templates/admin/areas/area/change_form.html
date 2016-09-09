@@ -1,0 +1,57 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .inline-group .tabular tr td.original{ padding: 28px 8px 8px; }
+        tbody .original p{ display: none; }
+    </style>
+{% endblock %}
+
+{% block after_field_sets %}
+
+    {% if original %}
+
+        <div id="area-map" style="width: 100%; min-height: 25em; margin-bottom: 2.5em;"></div>
+
+        <script>
+            var map = L.map('area-map', {
+                scrollWheelZoom: false
+            }).setView([47.717204, -122.308800], 11);
+
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            {% if precincts %}
+
+                var features = [];
+
+                {% for precinct in precincts %}
+
+                    features.push(L.marker([{{ precinct.centroid.y }}, {{ precinct.centroid.x }}]));
+                    features.push(L.geoJson({{ precinct.polygon | safe }}, {
+                        "weight": 2,
+                        "opacity": "0.5",
+                        "color": "{{ original.color }}"
+                    }));
+
+                            //     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+                            //     .openPopup();
+
+                {% endfor %}
+
+                 var feature_group = L.featureGroup(features);
+                 feature_group.addTo(map);
+                 map.fitBounds(feature_group.getBounds().pad(0.5));
+
+            {% endif %}
+
+            // L.marker([51.5, -0.09]).addTo(map)
+            //     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+            //     .openPopup();
+        </script>
+
+    {% endif %}
+
+{% endblock %}

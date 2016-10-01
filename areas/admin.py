@@ -19,7 +19,7 @@ class WaPrecinctAdmin(admin.OSMGeoAdmin):
 
 @admin.register(PrecinctCoordinator)
 class PrecinctCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ['precinct', 'full_name', 'phone_number', 'email', 'affiliation', 'status']
+    list_display = ['full_name', 'precinct', 'phone_number', 'email', 'affiliation', 'status']
     list_filter = ['area']
     raw_id_fields = ['precinct']
     search_fields = ['full_name', 'email', 'phone_number', 'precinct__long_name']

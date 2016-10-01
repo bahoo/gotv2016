@@ -21,12 +21,13 @@ class Command(BaseCommand):
                     line['precinct_id'] = precinct.pk
                     del line['precinct']
 
-                    line['affiliation'] = options['affiliation']
+                    if not 'affiliation' in line:
+                        line['affiliation'] = options['affiliation']
                     coordinator, created = PrecinctCoordinator.objects.get_or_create(**line)
                     if created:
                         created_count += 1
                     else:
                         not_created_count += 1
             self.stdout.write(self.style.SUCCESS('SUCCESS: Created %s coordinators (did not create %s)' % (created_count, not_created_count)))
-        except IOError:
-            raise CommandError("Could not open CSV file '%s'. Double-check that filename and path?" % options['filename'])
+        except IOError as e:
+            raise CommandError("Could not open CSV file '%s': \"%s\". Double-check that filename and path?" % (options['filename'], e))

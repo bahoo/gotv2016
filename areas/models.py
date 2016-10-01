@@ -104,6 +104,7 @@ class PrecinctCoordinator(models.Model):
             ('appointed', 'Appointed PCO, pre-reorg'),
             ('acting', 'Acting PCO, pre-reorg'),
             ('elected-post-reorg', 'Elected PCO, post-reorg'),
+            ('delegate', 'Delegate'),
             ('volunteer', 'Volunteer'),
         )
     area = models.ForeignKey(Area, null=True)
@@ -114,6 +115,7 @@ class PrecinctCoordinator(models.Model):
     affiliation = models.CharField(default=None, choices=AFFILIATIONS, null=True, blank=True, max_length=32, help_text='')
     status = models.CharField(default=None, choices=STATUSES, null=True, blank=True, max_length=32)
     notes = models.TextField(null=True, blank=True)
+    mini_van = models.BooleanField(default=False, verbose_name='MiniVAN')
 
     def __unicode__(self):
         return self.full_name

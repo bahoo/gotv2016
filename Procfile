@@ -1,0 +1,1 @@
+web: gunicorn gotv2016.wsgi:application

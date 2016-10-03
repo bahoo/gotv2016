@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
+from django import forms
 
 from localflavor.us.models import PhoneNumberField
 
@@ -133,3 +134,7 @@ class PrecinctCoordinator(models.Model):
             if area_name:
                 self.area = Area.objects.get(name=area_name)
         return super(PrecinctCoordinator, self).save(*args, **kwargs)
+
+
+    class Meta:
+        ordering = ('full_name',)

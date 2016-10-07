@@ -76,10 +76,11 @@ class PrecinctCoordinatorAdmin(admin.ModelAdmin):
     raw_id_fields = ['precinct']
     search_fields = ['full_name', 'email', 'phone_number', 'precinct__long_name']
     change_list_template = 'admin/areas/area/precinct-coordinator-changelist.html'
+    list_select_related = ['area', 'precinct']
 
     def get_queryset(self, request, *args, **kwargs):
         self.request = request
-        return super(PrecinctCoordinatorAdmin, self).get_queryset(request, *args, **kwargs)
+        return super(PrecinctCoordinatorAdmin, self).get_queryset(request, *args, **kwargs).prefetch_related('affiliations')
 
 
     def phone_number_linebreaks(self, obj):
@@ -95,14 +96,14 @@ class PrecinctCoordinatorAdmin(admin.ModelAdmin):
         precinct_name = obj.precinct.long_name
         author_name = self.request.user.first_name
 
-        if obj.affiliations.filter(slug__in=['elected', 'appointed', 'acting', 'elected-post-reorg']).exists():
+        if len(filter(lambda a: a.label in ['elected', 'appointed', 'acting', 'elected-post-reorg'], obj.affiliations.all())):
             descriptor = 'PCOs'
-        elif obj.affiliations.filter(slug='delegate').exists():
+        elif len(filter(lambda a: a.label == 'delegate', obj.affiliations.all())):
             descriptor = 'precinct delegates who caucused with us in March,'
         else:
             descriptor = 'volunteers'
 
-        subject_verb = "planning on" if obj.affiliations.filter(slug='elected').exists() else 'interested in'
+        subject_verb = "planning on" if len(filter(lambda a: a.label == 'elected', obj.affiliations.all())) else 'interested in'
 
         if not obj.status:
             extra = {

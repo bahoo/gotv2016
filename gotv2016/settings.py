@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'debug_toolbar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +43,13 @@ INSTALLED_APPS = [
     'areas',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = []
+
+if DEBUG:
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware']
+
+MIDDLEWARE = MIDDLEWARE + [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -119,3 +126,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '.static'
+
+INTERNAL_IPS = ['127.0.0.1']

@@ -15,7 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from areas import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # url(r'^$', views.IndexView.as_view(), name='index')
 ]
+
+
+admin.site.site_title    = '46th District Democrats GOTV 2016'
+admin.site.site_header   = '46th District Democrats GOTV 2016'
+admin.site.index_title   = '46th District Democrats GOTV 2016'
+
+

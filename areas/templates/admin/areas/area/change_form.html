@@ -43,7 +43,7 @@
 
                  var feature_group = L.featureGroup(features);
                  feature_group.addTo(map);
-                 map.fitBounds(feature_group.getBounds().pad(0.5));
+                 map.fitBounds(feature_group.getBounds());
 
             {% endif %}
 

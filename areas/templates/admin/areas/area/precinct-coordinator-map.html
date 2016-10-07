@@ -1,0 +1,39 @@
+<div id="area-map" style="min-height: 25em; margin-bottom: 2.5em; margin-right: 280px"></div>
+
+<link rel="stylesheet" href="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.css" />
+<script src="https://npmcdn.com/leaflet@0.7.7/dist/leaflet.js"></script>
+<script>
+    var map = L.map('area-map', {
+        scrollWheelZoom: false
+    }).setView([47.717204, -122.308800], 11);
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var features = [];
+
+    {% for precinct in cl.result_list %}
+
+        var popup = '<strong>{{ precinct.precinct.long_name }}</strong><br />{{ precinct.full_name }}<br />{{ precinct.phone_number | linebreaksbr }}<br />{{ precinct.email | linebreaksbr | urlize }}';
+
+        var marker = L.marker([{{ precinct.precinct.centroid.y }}, {{ precinct.precinct.centroid.x }}])
+        marker.bindPopup(popup);
+        features.push(marker);
+
+        var precinct = L.geoJson({'type': 'Feature', 'properties': {}, 'geometry': {{ precinct.precinct.jsonify | safe }}}, {
+            "weight": 2,
+            "opacity": "1",
+            "fillOpacity": "0.5",
+            "color": "{{ precinct.area.color }}"
+        });
+        precinct.bindPopup(popup);
+        features.push(precinct);
+
+    {% endfor %}
+
+     var feature_group = L.featureGroup(features);
+     feature_group.addTo(map);
+     map.fitBounds(feature_group.getBounds());
+
+</script>

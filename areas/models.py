@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
+
 from django import forms
 
 from localflavor.us.models import PhoneNumberField
@@ -23,6 +25,12 @@ class WaPrecinct(models.Model):
 
     def __unicode__(self):
         return self.long_name
+
+    def jsonify(self):
+        return self.map_cache_geometry.transform(4326, clone=True).simplify(0.0001).json
+
+    def centroid(self):
+        return self.map_cache_geometry.centroid.transform(4326, clone=True)
 
 
 class Area(models.Model):
@@ -89,31 +97,47 @@ class Area(models.Model):
         verbose_name = 'Precinct Area'
 
 
-class PrecinctCoordinator(models.Model):
-    STATUSES = (
-            (None, 'No data'),
-            ('will-walk', 'Will Walk'),
-            ('picked-up-packet', 'Has Packet'),
-            ('walked', 'Walked'),
-            ('data-entered', 'Data Entered'),
-            ('will-not-walk', 'Will Not Walk'),
-        )
+class Affiliation(models.Model):
+    label = models.CharField(max_length=60)
+    slug = models.SlugField(unique=True)
 
-    AFFILIATIONS = (
-            (None, 'Other / No Data'),
-            ('elected', 'Elected PCO, pre-reorg'),
-            ('appointed', 'Appointed PCO, pre-reorg'),
-            ('acting', 'Acting PCO, pre-reorg'),
-            ('elected-post-reorg', 'Elected PCO, post-reorg'),
-            ('delegate', 'Delegate'),
-            ('volunteer', 'Volunteer'),
-        )
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.label)
+        super(Affiliation, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.label
+
+
+STATUSES = (
+        (None, '-'),
+        ('voicemail', 'Voicemail'),
+        ('will-walk', 'Will Walk'),
+        ('picked-up-packet', 'Has Packet'),
+        ('walked', 'Walked'),
+        ('data-entered', 'Data Entered'),
+        ('will-not-walk', 'Will Not Walk'),
+    )
+
+AFFILIATIONS = (
+        (None, 'Other / No Data'),
+        ('elected', 'Elected PCO, pre-reorg'),
+        ('appointed', 'Appointed PCO, pre-reorg'),
+        ('acting', 'Acting PCO, pre-reorg'),
+        ('elected-post-reorg', 'Elected PCO, post-reorg'),
+        ('delegate', 'Delegate'),
+        ('volunteer', 'Volunteer'),
+    )
+
+class PrecinctCoordinator(models.Model):
     area = models.ForeignKey(Area, null=True)
     precinct = models.ForeignKey(WaPrecinct)
     full_name = models.CharField(max_length=255, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    phone_number = PhoneNumberField(null=True, blank=True)
-    affiliation = models.CharField(default=None, choices=AFFILIATIONS, null=True, blank=True, max_length=32, help_text='')
+    email = models.EmailField(null=True, blank=True, max_length=1024)
+    phone_number = models.CharField(null=True, blank=True, max_length=1024)
+    # affiliation = models.CharField(default=None, choices=AFFILIATIONS, null=True, blank=True, max_length=32, help_text='')
+    affiliations = models.ManyToManyField(Affiliation, blank=True)
     status = models.CharField(default=None, choices=STATUSES, null=True, blank=True, max_length=32)
     notes = models.TextField(null=True, blank=True)
     mini_van = models.BooleanField(default=False, verbose_name='MiniVAN')
@@ -137,4 +161,4 @@ class PrecinctCoordinator(models.Model):
 
 
     class Meta:
-        ordering = ('full_name',)
+        ordering = ('precinct__long_name', 'status', 'full_name')

@@ -3,7 +3,6 @@
 {% block result_list %}
     {% if "show_map" not in request.GET %}
         {% include "admin/areas/area/precinct-coordinator-map.html" %}
-    }
     {% endif %}
     {{ block.super }}
 {% endblock %}

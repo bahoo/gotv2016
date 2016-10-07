@@ -96,14 +96,14 @@ class PrecinctCoordinatorAdmin(admin.ModelAdmin):
         precinct_name = obj.precinct.long_name
         author_name = self.request.user.first_name
 
-        if len(filter(lambda a: a.label in ['elected', 'appointed', 'acting', 'elected-post-reorg'], obj.affiliations.all())):
+        if len(filter(lambda a: a.slug in ['elected', 'appointed', 'acting', 'elected-post-reorg'], obj.affiliations.all())):
             descriptor = 'PCOs'
-        elif len(filter(lambda a: a.label == 'delegate', obj.affiliations.all())):
+        elif len(filter(lambda a: a.slug == 'delegate', obj.affiliations.all())):
             descriptor = 'precinct delegates who caucused with us in March,'
         else:
             descriptor = 'volunteers'
 
-        subject_verb = "planning on" if len(filter(lambda a: a.label == 'elected', obj.affiliations.all())) else 'interested in'
+        subject_verb = "planning on" if len(filter(lambda a: a.slug == 'elected', obj.affiliations.all())) else 'interested in'
 
         if not obj.status:
             extra = {

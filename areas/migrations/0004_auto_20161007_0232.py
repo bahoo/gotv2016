@@ -27,6 +27,9 @@ def merge_coordinators(apps, schema_editor):
 
     for c in distinct_coordinators:
 
+        if not c.email:
+            continue
+
         possible_dupes = PrecinctCoordinator.objects.filter(email__iexact=c.email).exclude(id=c.id)
 
         if not possible_dupes.exists():

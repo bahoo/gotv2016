@@ -156,8 +156,8 @@ Thanks!
             }
 
         # URL encode the values, but not the keys.
-        for k, v in extra.iteritems():
-            extra[k] = urllib.quote_plus(v)
+        # for k, v in extra.iteritems():
+        #     extra[k] = v
 
         return mark_safe("<a href=\"mailto:%(email)s%(extra)s\" target=\"_blank\">%(email)s</a>" % {'email': obj.email, 'extra': '?' + urllib.urlencode(extra) if extra else ''})
     linkable_email.short_description = "Email"

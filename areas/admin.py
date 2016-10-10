@@ -84,6 +84,7 @@ class PrecinctCoordinatorAdmin(admin.ModelAdmin):
 
     def get_precinct(self, obj):
         return obj.precinct.long_name
+    get_precinct.short_description = 'Precinct'
     get_precinct.admin_order_field = 'precinct__short_name'
 
 

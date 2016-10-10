@@ -156,8 +156,8 @@ Thanks!
             }
 
         # URL encode the values, but not the keys.
-        # for k, v in extra.iteritems():
-        #     extra[k] = v
+        for k, v in extra.iteritems():
+            extra[k] = "%0D%0A".join(v.split('\n'))
 
         return mark_safe("<a href=\"mailto:%(email)s%(extra)s\" target=\"_blank\">%(email)s</a>" % {'email': obj.email, 'extra': '?' +  "&".join(["=".join([k,v]) for k,v in extra.iteritems()]) if extra else ''})
     linkable_email.short_description = "Email"

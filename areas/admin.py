@@ -71,7 +71,7 @@ class HideMapListFilter(admin.SimpleListFilter):
 
 @admin.register(PrecinctCoordinator)
 class PrecinctCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'precinct', 'phone_number_linebreaks', 'linkable_email', 'status']
+    list_display = ['full_name', 'get_precinct', 'phone_number_linebreaks', 'linkable_email', 'status']
     list_filter = ['area', PrecinctStatusListFilter, 'status', 'affiliations', HideMapListFilter]
     raw_id_fields = ['precinct']
     search_fields = ['full_name', 'email', 'phone_number', 'precinct__long_name']
@@ -81,6 +81,10 @@ class PrecinctCoordinatorAdmin(admin.ModelAdmin):
     def get_queryset(self, request, *args, **kwargs):
         self.request = request
         return super(PrecinctCoordinatorAdmin, self).get_queryset(request, *args, **kwargs).prefetch_related('affiliations')
+
+    def get_precinct(self, obj):
+        return obj.precinct.long_name
+    get_precinct.admin_order_field = 'precinct__short_name'
 
 
     def phone_number_linebreaks(self, obj):

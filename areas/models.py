@@ -112,6 +112,7 @@ class Affiliation(models.Model):
 
 STATUSES = (
         (None, '-'),
+        ('email', 'Email'),
         ('voicemail', 'Voicemail'),
         ('will-walk', 'Will Walk'),
         ('picked-up-packet', 'Has Packet'),

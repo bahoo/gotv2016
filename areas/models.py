@@ -132,7 +132,7 @@ AFFILIATIONS = (
     )
 
 class PrecinctCoordinator(models.Model):
-    area = models.ForeignKey(Area, null=True)
+    area = models.ForeignKey(Area, null=True, blank=True)
     precinct = models.ForeignKey(WaPrecinct)
     full_name = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(null=True, blank=True, max_length=1024)

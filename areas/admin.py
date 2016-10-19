@@ -3,6 +3,7 @@ from django.contrib.admin import widgets
 from django.contrib import admin
 from django.contrib.gis import admin as geo_admin
 from django.db import models
+from django.db.models import Q
 from django.utils.html import mark_safe
 import json
 import urllib
@@ -37,7 +38,7 @@ class PrecinctStatusListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         lookup_to_status = {
-            'needs-walker': {'status': 'will-walk'},
+            'needs-walker': Q(Q(status='will-walk') | Q(status='picked-up-packet') | Q(status='walked') | Q(status='data-entered')),
             'needs-packets': {'status': 'will-walk'},
             'needs-walk': {'status': 'picked-up-packet'},
             'needs-enter-data': {'status': 'walked'},
@@ -45,7 +46,13 @@ class PrecinctStatusListFilter(admin.SimpleListFilter):
         }
 
         if self.value():
-            matching = queryset.filter(**lookup_to_status[self.value()])
+
+            if isinstance(lookup_to_status[self.value()], dict):
+                matching = queryset.filter(**lookup_to_status[self.value()])
+            elif isinstance(lookup_to_status[self.value()], list):
+                matching = queryset.filter(*lookup_to_status[self.value()])
+            else:
+                matching = queryset.filter(lookup_to_status[self.value()])
             
             if self.value() == 'needs-walker':
                 precinct_ids_to_exclude = matching.values_list('precinct_id', flat=True)

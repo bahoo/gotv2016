@@ -78,22 +78,31 @@ class HideMapListFilter(admin.SimpleListFilter):
 
 @admin.register(PrecinctCoordinator)
 class PrecinctCoordinatorAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'get_precinct', 'phone_number_linebreaks', 'linkable_email', 'status']
+    list_display = ['full_name', 'location', 'phone_number_linebreaks', 'linkable_email', 'status', 'affiliations_list']
     list_filter = ['area', PrecinctStatusListFilter, 'status', 'affiliations', HideMapListFilter]
     raw_id_fields = ['precinct']
     search_fields = ['full_name', 'email', 'phone_number', 'precinct__long_name']
     change_list_template = 'admin/areas/area/precinct-coordinator-changelist.html'
     list_select_related = ['area', 'precinct']
 
+    def affiliations_list(self, obj):
+        return mark_safe("<br />".join(aff.label for aff in obj.affiliations.all()))
+    affiliations_list.short_description = "Affiliations"
+    affiliations_list.admin_order_field = "affiliations__label"
+
     def get_queryset(self, request, *args, **kwargs):
         self.request = request
         return super(PrecinctCoordinatorAdmin, self).get_queryset(request, *args, **kwargs).prefetch_related('affiliations')
 
-    def get_precinct(self, obj):
-        return obj.precinct.long_name
-    get_precinct.short_description = 'Precinct'
-    get_precinct.admin_order_field = 'precinct__short_name'
+    def location(self, obj):
+        return mark_safe("<br />".join([obj.precinct.long_name, obj.area.name]))
+    location.short_description = 'Precinct'
+    location.admin_order_field = 'precinct__short_name'
 
+    # def get_precinct(self, obj):
+    #     return obj.precinct.long_name
+    # get_precinct.short_description = 'Precinct'
+    # get_precinct.admin_order_field = 'precinct__short_name'
 
     def phone_number_linebreaks(self, obj):
         return mark_safe("<br />".join(obj.phone_number.split('\n')))
